@@ -55,26 +55,6 @@
                         <p>&copy; 2024 My Blog. All rights reserved.</p>
                 </footer>
 
-                <script>
-                        const read_more = document.getElementById("read_more");
-                        const extras = document.getElementsByClassName("extra");
-
-                                
-                        read_more.addEventListener("click", () => {
-                                Array.from(extras).forEach(extra => {
-                                        switch (extra.style.display) {
-                                                case "none":
-                                                        extra.style.display = "block";
-                                                        read_more.hidden = true;
-                                                        break;
-                                                default:
-                                                        extra.style.display = "none"
-                                                        read_more.textContent = "Read More"
-                                                        break;
-                                        }
-                                })                                
-                        })
-                </script>
                 <script 
                         src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 

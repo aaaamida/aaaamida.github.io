@@ -36,74 +36,39 @@
                 </nav>
 
                 <div class="container my-5">
-                        <h1 class="text-center">Welcome to My Personal Blog</h1>
-                        <div class="row mt-4">
-                                <div class="col-md-8 offset-md-2">
-                                        <article class="mb-4">
-                                                <h2>Blog Post Title</h2>
-                                                <h3>Section 1</h3>
-                                                <p>
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                                        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                                                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                                                </p>
-                                                <br>
-                                                <h3>Section 2</h3>
-                                                <p>
-                                                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium,
-                                                        totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-                                                        Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
-                                                        sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-                                                        Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit,
-                                                        sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. 
-                                                        Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, 
-                                                        nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, 
-                                                        vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
-                                                </p>
-                                                <button type="button" class="btn btn-outline-primary" id="read_more">Read More</button>                                                
-                                                <br>
-                                                <h3 class="extra">Section 3</h3>
-                                                <p class="extra">
-                                                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti 
-                                                        quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi,
-                                                        id est laborum et dolorum fuga.
-                                                        Et harum quidem rerum facilis est et expedita distinctio. 
-                                                        Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, 
-                                                        omnis voluptas assumenda est, omnis dolor repellendus. 
-                                                        Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et 
-                                                        molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur 
-                                                        aut perferendis doloribus asperiores repellat.
-                                                </p>
-                                        </article>
-                                </div>
-                        </div>
+                        <h1 class="text-center">Feedback Submissions</h1> 
+                        <table class="table table-hover table-bordered">
+                                <thead>
+                                        <tr>
+                                                <th scope="col">Submission ID</th>
+                                                <th scope="col">Submission Content</th>
+                                        </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                                <th scope="row">3a1f5c9b8e4d7a2fbb9c36d214fa58c1</th>
+                                                <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</td>
+                                        </tr>
+                                        <tr>
+                                                <th scope="row">8d5b2e4a7f9c0b6d3a2e1c45f8d9e7b4</th>
+                                                <td>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</td>
+                                        </tr>
+                                        <tr>
+                                                <th scope="row">5f1a8c3b7d4e6f9a2c3b5e0d7f1c8a4e</th>
+                                                <td>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</td>
+                                        </tr>
+                                        <tr>
+                                                <th scope="row">9b3e5d7a4c1f8e2d6f3a1c9b7d2e5a4f</th>
+                                                <td>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</td>
+                                        </tr>
+                                </tbody>
+                        </table>
                 </div>
 
                 <footer class="text-center py-4">
                         <p>&copy; 2024 My Blog. All rights reserved.</p>
                 </footer>
 
-                <script>
-                        const read_more = document.getElementById("read_more");
-                        const extras = document.getElementsByClassName("extra");
-
-                                
-                        read_more.addEventListener("click", () => {
-                                Array.from(extras).forEach(extra => {
-                                        switch (extra.style.display) {
-                                                case "none":
-                                                        extra.style.display = "block";
-                                                        read_more.hidden = true;
-                                                        break;
-                                                default:
-                                                        extra.style.display = "none"
-                                                        read_more.textContent = "Read More"
-                                                        break;
-                                        }
-                                })                                
-                        })
-                </script>
                 <script 
                         src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
