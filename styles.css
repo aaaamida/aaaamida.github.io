@@ -31,6 +31,10 @@ h1, h2 {
         margin-bottom: 1rem;
 }
 
+th, td {
+        color: white;
+}
+
 article {
         border-bottom: 1px solid #fff;
         padding-bottom: 1rem;
