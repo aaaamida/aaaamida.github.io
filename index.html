@@ -29,7 +29,7 @@
                                         <ul class="navbar-nav ms-auto">
                                                 <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
                                                 <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-                                                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                                                <li class="nav-item"><a class="nav-link" href="#">Suggestions</a></li>
                                         </ul>
                                 </div>
                         </div>
@@ -61,7 +61,20 @@
                                                         nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, 
                                                         vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
                                                 </p>
-                                                <a href="#" class="btn btn-outline-primary">Read More</a>
+                                                <button type="button" class="btn btn-outline-primary" id="read_more">Read More</button>                                                
+                                                <br>
+                                                <h3 class="extra">Section 3</h3>
+                                                <p class="extra">
+                                                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti 
+                                                        quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi,
+                                                        id est laborum et dolorum fuga.
+                                                        Et harum quidem rerum facilis est et expedita distinctio. 
+                                                        Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, 
+                                                        omnis voluptas assumenda est, omnis dolor repellendus. 
+                                                        Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et 
+                                                        molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur 
+                                                        aut perferendis doloribus asperiores repellat.
+                                                </p>
                                         </article>
                                 </div>
                         </div>
@@ -71,6 +84,26 @@
                         <p>&copy; 2024 My Blog. All rights reserved.</p>
                 </footer>
 
+                <script>
+                        const read_more = document.getElementById("read_more");
+                        const extras = document.getElementsByClassName("extra");
+
+                                
+                        read_more.addEventListener("click", () => {
+                                Array.from(extras).forEach(extra => {
+                                        switch (extra.style.display) {
+                                                case "none":
+                                                        extra.style.display = "block";
+                                                        read_more.hidden = true;
+                                                        break;
+                                                default:
+                                                        extra.style.display = "none"
+                                                        read_more.textContent = "Read More"
+                                                        break;
+                                        }
+                                })                                
+                        })
+                </script>
                 <script 
                         src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 

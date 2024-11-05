@@ -9,6 +9,11 @@ html, body {
 
 .container {
         flex: 1;
+        overflow: auto;
+}
+
+.extra {
+        display: none;
 }
 
 nav {
@@ -37,3 +42,8 @@ footer {
         padding: 1rem 0;
 }
 
+@media (max-width: 720px) {
+        html {
+                font-size: 75%;
+        }
+}
