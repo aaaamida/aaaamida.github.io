@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link 
+                        rel="stylesheet" 
+                        href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" 
+                        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+                        crossorigin="anonymous">
+                <link rel="stylesheet" href="styles.css">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+                <title>Personal Blog</title>
+        </head>
+        <body>
+                <nav class="navbar navbar-expand-lg navbar-dark">
+                        <div class="container-fluid">
+                                <a class="navbar-brand" href="index.html">My Blog</a>
+                                        <ul class="navbar-nav ms-auto">
+                                                <li class="nav-item"><a 
+                                                        class="nav-link"
+                                                        href="#"
+                                                        style="flex-direction: row; display: flex;">Home</a></li>
+                                                <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                                                <li class="nav-item"><a class="nav-link" href="form.html">Suggestions</a></li>
+                                        </ul>
+                        </div>
+                </nav>
+
+                <div class="container my-5">
+                        <h1 class="text-center">Rust Performance Analysis</h1>
+                        <br><br>
+                        <h3>Introduction</h3>
+                        <br>
+                        <p>
+                                Welcome to our exploration into the depths of Rust compiler optimizations! 
+                                In the thrilling world of programming, Rust has carved a niche for itself with its unique combination of safety, speed, and concurrency.
+                                But as with any language, getting the most out of Rust requires more than just understanding its syntax and idioms — 
+                                it requires an in-depth knowledge of how to effectively utilize and optimize its compiler.
+                        </p>
+                        <p>
+                                To illustrate this, we’ve devised a practical use case — a matrix multiplication task within an Actix Web application.
+                                This CPU-intensive operation provides a perfect scenario to analyze the impacts of various compiler optimizations.
+                        </p>
+                        <p>
+                                As we delve into the experiment, we’ll be adjusting settings in the Cargo.toml file, utilizing specific build flags, 
+                                and even swapping out the memory allocator. By measuring the performance impact of each change, we’ll build a
+                                comprehensive understanding of Rust’s optimization possibilities.
+                        </p>
+                        <p>
+                                Buckle up and get ready to dive deep into the Rust compiler’s optimization features, 
+                                and discover how you can unleash the full potential of your Rust applications!
+                        </p>
+                        <br>
+
+                        <h3>Example Application</h3>
+                        <br>
+                        <p>
+                                Let’s dive into the practical side of things with a simple demonstration. 
+                                I’ve developed a compact application using Actix Web, featuring a unique route <code>/matrix-multiplication</code>.
+                                This endpoint anticipates a JSON payload with a single property: <code>n</code>.
+                        </p>
+                        <p>
+                                Upon receiving a request, the application springs into action,
+                                dynamically generating two matrices of size <code>n * n</code>, filled with random entries.
+                                Acting as a proxy for a computation-intensive application, it multiplies these matrices together.
+                        </p>
+                        <p>
+                                The product of this calculation is then returned to the user,
+                                demonstrating a real-world scenario where our Rust application is required to do some serious number-crunching.
+                        </p>
+                        <br>
+                        <code>Cargo.toml</code>
+                        <br>
+                        <button type="button" id="cargo_toml" onclick="show_result('.cargo', '#cargo_toml')" class="btn btn-outline-primary">Show Code</button>
+                        <pre class="hlBlock cargo" style="display: none;"><code class="language-toml cargo" style="display: none;">
+[package]
+name = "rust-optimization"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+actix-web = "4.3.1"
+dotenv = "0.15.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.96"
+log = "0.4.17"
+env_logger = "0.10.0"
+serde_derive = "1.0.163"
+rand = "0.8.5"
+mimalloc = { version = "0.1.37", default-features = false }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+                        </code></pre>
+                        <br><br>
+                        <code>main.rs</code>
+                        <br>
+                        <button type="button" id="main_rs" onclick="show_result('.main_rs', '#main_rs')" class="btn btn-outline-primary">Show Code</button>
+                        <pre class="hlBlock main_rs" style="display: none;"><code class="language-rust main_rs" style="display: none;">
+use std::env;
+use rand::Rng;
+
+use actix_web::{App, get, post, HttpResponse, HttpServer, middleware, web};
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Message {
+        pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct MatrixSize {
+        pub n: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct MatrixResult {
+        pub matrix: Vec&lt;Vec&lt;i32&gt;&gt;,
+}
+
+#[get("/healthz")]
+async fn health() -&gt; HttpResponse {
+        HttpResponse::Ok().json(Message {
+                message: "healthy".to_string(),
+        })
+}
+
+async fn not_found() -&gt; HttpResponse {
+        HttpResponse::NotFound().json(Message {
+                message: "not found".to_string(),
+        })
+}
+
+#[post("/matrix-multiplication")]
+async fn matrix_multiplication(size: web::Json&lt;MatrixSize&gt;) -&gt; HttpResponse {
+        let n = size.n;
+        let matrix_a = generate_random_matrix(n);
+        let matrix_b = generate_random_matrix(n);
+        let result = multiply_matrices(&amp;matrix_a, &amp;matrix_b);
+
+        HttpResponse::Ok().json(MatrixResult { matrix: result })
+}
+
+fn generate_random_matrix(n: usize) -&gt; Vec&lt;Vec&lt;i32&gt;&gt; {
+        let mut rng = rand::thread_rng();
+        (0..n).map(|_| (0..n).map(|_| rng.gen_range(0..n as i32)).collect()).collect()
+}
+
+fn multiply_matrices(matrix_a: &amp;Vec&lt;Vec&lt;i32&gt;&gt;, matrix_b: &amp;Vec&lt;Vec&lt;i32&gt;&gt;) -&gt; Vec&lt;Vec&lt;i32&gt;&gt; {
+        let a_rows = matrix_a.len();
+        let a_cols = matrix_a[0].len();
+        let b_cols = matrix_b[0].len();
+
+        let mut result = vec![vec![0; b_cols]; a_rows];
+
+        for i in 0..a_rows {
+                for j in 0..b_cols {
+                        for k in 0..a_cols {
+                                result[i][j] += matrix_a[i][k] * matrix_b[k][j];
+                        }
+                }
+        }
+
+        result
+}
+
+#[actix_web::main]
+async fn main() -&gt; Result&lt;()&gt; {
+        env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+        let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+
+        HttpServer::new(move || {
+                App::new()
+                        .wrap(middleware::Logger::default())
+                        .service(health)
+                        .service(matrix_multiplication)
+                        .default_service(web::route().to(not_found))
+        })
+                .bind(format!("0.0.0.0:{}", port))?
+                .run()
+                .await.expect("failed to run server");
+
+        Ok(())
+}
+                        </code></pre>
+                        <br><br>
+
+                        <h3>Optimisation Opportunities</h3>
+                        <br>
+                        <ol>
+                                <li>
+                                        Cargo.toml Profile Settings — Settings under the [profile.release] section can be adjusted to focus on performance. 
+                                        We've used the following optimizations:<br>
+                                        <code>lto = true</code> for enabling Link Time Optimization,<br>
+                                        <code>codegen-units</code> = 1 for maximizing optimization across the entire crate,<br>
+                                        <code>panic = "abort"</code> to make panic call abort instead of unwind,<br>
+                                        <code>strip = true</code> to reduce the binary size by removing debug symbols.<br>
+                                </li>
+                                <li>
+                                        Build Flags — By setting <code>RUSTFLAGS=”-C target-cpu=native”</code>, we can ensure the compiler optimizes the build 
+                                        for the specific architecture of the machine where the code is compiled.
+                                </li>
+                                <li>
+                                        Alternate Memory Allocator — We also tried the <code>mimalloc</code> memory allocator which can provide 
+                                        better performance characteristics than the default allocator for some workloads.
+                                </li>
+                        </ol>
+                        <br>
+
+                        <h3>Experimental Setup</h3>
+                        <p>
+                                To load test our Actix Web API, we’ll be using a powerful yet lightweight tool — Drill. Built in Rust, 
+                                Drill has been designed with simplicity in mind, providing a sturdy alternative to other load testing tools that require heavier resources like JVM.
+                        </p>
+                        <br>
+                        <p>
+                                The testing environment will be set up on my local PC, running on Windows 11 Pro.
+                                The hardware underpinning the system includes an Intel(R) Core(TM) i9–9900K CPU operating at 3.60GHz, with 8 cores, accompanied by 32GB of RAM.
+                        </p>
+                        <br>
+                        <p>
+                                In order to simulate heavy load, our test parameters will include 500 concurrent requests across two scenarios — 
+                                one with 10,000 iterations and the other with 20,000. This effectively amounts to a staggering total of 50,000 and 100,000 requests respectively.
+                        </p>
+                        <br>
+                        <p>
+                                The testing will take place under various configurations for a comprehensive view of performance, listed as follows:
+                                <ol>
+                                        <li><code>cargo run</code>: This represents a Development Build that operates without any optimizations (noted as 'D').</li>
+                                        <li><code>cargo run --release</code>: Here, we have a Release Build that also runs without any optimizations (notated as 'R').</li>
+                                        <li><code>RUSTFLAGS="-C target-cpu=native" cargo run --release</code>:
+                                                This configuration is a Release Build equipped with optimizations, with profile.release settings also activated (marked as 'ROpt').
+                                        </li>
+                                        <li><code>RUSTFLAGS="-C target-cpu=native" cargo run --release</code>:
+                                                This takes the previous configuration but adds a twist - the implementation of MimAlloc, an alternate memory allocator (represented as 'ROptMimAlloc').
+                                        </li>
+                                </ol>
+                        </pre>
+                        <br>
+
+                        <h3>Result</h3>
+                        <br>
+                        <button type="button" onclick="show_result('.results', '#showResult')" id="showResult" class="btn btn-outline-primary">Show Results</button>
+                        <pre class="hlBlock results" style="display: none;"><code class="results" style="display: none;">
+| Build Type                                      | Total Time (s) | Requests per second |
+| ----------------------------------------------- | -------------- | ------------------- |
+| Dev Build Unoptimized 50k                       | 71.3           | 701.45              |
+| Release Build Unoptimized 50k                   | 27.0           | 1849.95             |
+| Release Build Optimized (flags) 50k             | 25.8           | 1937.80             |
+| Release Build Optimized (flags + mimalloc) 50k  | 26.7           | 1873.65             |
+| Release Build Unoptimized 100k                  | 52.1           | 1918.27             |
+| Release Build Optimized (flags) 100k            | 51.7           | 1934.59             |
+| Release Build Optimized (flags + mimalloc) 100k | 51.1           | 1955.07             |
+                        </code></pre>
+                        <br>
+                        <div class="slider">
+                                <button type="button" class="arrow left" onclick="move_slide(-1)">&#10094;</button>
+                                <div class="slideContainer">
+                                        <img src="assets/graph1.webp" alt="Request per second between various optimisations" class="slide active">
+                                        <img src="assets/graph2.webp" alt="Total time to build" class="slide">
+                                </div>
+                                <button type="button" class="arrow right" onclick="move_slide(1)">&#10095;</button>
+                        </div>
+                        <br><br>
+
+
+                        <h3>Conclusion</h3>
+                        <br>
+                        <p>
+                                Upon examining the performance data, several key findings emerge around how different optimizations impact our Rust application.
+                        </p>
+                        <p>
+                                Starting with the 50k requests tests, the unoptimized Development Build was able to handle around 701.45 requests per second,
+                                but when the code was compiled in Release mode, the requests per second soared to 1849.95.
+                                This showcases the remarkable difference the Rust compiler can make when shifting from Development to Release mode.
+                        </p>
+                        <p>
+                                Adding optimizations using build flags targeting the native CPU architecture increased the performance further,
+                                reaching 1937.80 requests per second. This highlights the utility of hardware-specific optimizations.
+                        </p>
+                        <p>
+                                When we included <code>mimalloc</code>, the alternate memory allocator, the requests per second slightly decreased to 1873.65. 
+                                This suggests that while <code>mimalloc</code> can improve memory usage efficiency, it may not necessarily boost request handling speed in every scenario.
+                        </p>
+                        <p>
+                                Moving on to the 100k requests tests, it’s interesting to note that the performance difference between unoptimized and optimized release builds is less pronounced.
+                                The unoptimized release build achieved 1918.27 requests per second, while the optimized builds (with and without <code>mimalloc</code>) attained 1934.59 and 1955.07
+                                requests per second, respectively.
+                        </p>
+                        <p>
+                                This suggests that the impact of our optimizations becomes less striking when handling larger volumes of requests. 
+                                Despite this, it’s important to acknowledge that the optimized builds still offer the best performance, even under a heavier load.
+                        </p>
+                        <p>
+                                In summary, our comparison reveals that while optimizations generally improve performance, their impact can vary based on the specifics 
+                                of your workload and the total number of requests your application processes. It underscores the importance of testing and monitoring performance under 
+                                various scenarios to identify the most beneficial optimization strategies for your specific use-case.
+                        </p>
+
+                        
+                </div>
+
+                <footer class="text-center py-4">
+                        <p>&copy; 2024 My Blog. All rights reserved.</p>
+                </footer>
+
+                <script>
+                const show_result = (content, trigger) => {
+                        $(content).show()
+                        $(trigger).hide()
+                }
+                $(".btn").on("mouseover", () => {
+                        this.style.boxShadow = `4px 4px 4px 8`
+                })
+                </script>
+                <script src="script.js"></script>
+                <script 
+                        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" 
+                        crossorigin="anonymous"></script>
+                <script
+                        src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+                        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+                        crossorigin="anonymous"></script>
+                <script 
+                        src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+                        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
+                        crossorigin="anonymous"></script>
+                <script>hljs.highlightAll();</script>
+        </body>
+</html>
+

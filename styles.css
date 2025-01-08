@@ -1,4 +1,5 @@
 @import url('https://fonts.cdnfonts.com/css/jetbrains-mono-2');
+@import url('https://fonts.cdnfonts.com/css/helvetica-neue-5');
 
 html, body {
         height: 100%;
@@ -21,7 +22,7 @@ nav {
 }
 
 body {
-        font-family: 'JetBrains Mono', sans-serif;
+        font-family: 'Helvetica Neue', sans-serif;
         color: white;
         line-height: 1.6;
         background-color: #1f1e33;
@@ -44,6 +45,74 @@ footer {
         background-color: #171626;
         text-align: center;
         padding: 1rem 0;
+}
+
+code {
+        font-family: 'JetBrains Mono', monospace;
+        color: #FFAEAE;
+        background: none;
+}
+
+.hlBlock {
+        padding: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        overflow-x: auto;
+}
+
+.slider {
+        position: relative;
+        width: 60%;
+        max-width: 600px;
+        overflow: hidden;
+}
+
+.slideContainer {
+        display: flex;
+        transition: transform 0.5s;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+        height: 400px;
+        padding: 50px;
+        margin: 0 auto;
+}
+
+.slide {
+        width: 100%;
+        display: none;
+        transition: transform 0.5s ease-in-out, z-index 0.5 ease-in-out;
+}
+
+.slide.active {
+        display: block;
+}
+
+.slide:hover {
+        transform: scale(1.3);
+}
+
+.arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 12px;
+        cursor: pointer;
+        z-index: 10;
+}
+
+.arrow.left {
+        left: 10px;
+}
+
+.arrow.right {
+        right: 10px;
+}
+
+.arrow:hover {
+        background-color: rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 720px) {
